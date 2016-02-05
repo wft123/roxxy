@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="notice">
+
+	<insert id="insert" parameterType="NoticeVo">
+		<![CDATA[
+			insert into notice 
+			values ( notice_no_seq.nextval, #{title }, #{content }, #{member_no }, 
+						0, SYSDATE, #{group_no }, #{order_no }, #{depth }, #{fileName }, #{fileOriginalName } )
+		]]>
+	</insert>
+	
+	<select id="getView" parameterType="long" resultType="NoticeVo">
+		<![CDATA[
+			select no, title, content, member_no, group_no, order_no, depth, fileName, fileOriginalName 
+			from notice where no=#{no }
+		]]>
+	</select>
+	
+	<update id="upViewCount" parameterType="long">
+		<![CDATA[
+			update notice set view_cnt = view_cnt + 1 where no=#{no }
+		]]>
+	</update>
+	
+	<update id="modify" parameterType="NoticeVo">
+		<![CDATA[
+			update notice set title=#{title }, content=#{content }, fileName=#{fileName}, fileOriginalName=#{fileOriginalName} 
+			where no=#{no }
+		]]>
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		<![CDATA[
+			delete from notice where no = #{no }
+		]]>
+	</delete>
+	
+	<select id="getNoticeSize" parameterType="map" resultType="long">
+		<![CDATA[
+			select count(*) from notice
+		]]>	
+			<if test="kwd != ''">
+				<if test="searchType == 'title'">
+				 	<![CDATA[
+			  	 		where title like '%${kwd }%' or content like '%${kwd }%'
+			  	 	]]>
+				</if>
+				<if test="searchType == 'user'">
+			 	 	<![CDATA[
+			 	 		 ,member         
+  						where notice.member_no=member.no AND member.NAME like '%${kwd }%'
+			  	 	]]>
+				</if>
+			</if> 
+	</select>
+	
+	<select id="getMaxGroup" resultType="long">
+		<![CDATA[
+			select nvl(max(group_no),1) from notice
+		]]>
+	</select>
+	
+	<select id="getMaxOrder" parameterType="long" resultType="long">
+		<![CDATA[
+			select nvl(max(order_no),1) from notice where group_no=#{no }
+		]]>
+	</select>
+	
+	<select id="getListPage" parameterType="map" resultType="NoticeVo">
+		<![CDATA[
+			select no, title, member_no, member_name,view_cnt, reg_date, group_no, order_no, depth
+			from (SELECT *
+					FROM ( SELECT rownum rnum, no, title, member_no, member_name,view_cnt, reg_date, group_no, order_no, depth
+							   FROM ( select a.no no, 
+							   					a.title title,
+							   					a.content as content,
+							   					a.member_no member_no,
+							   					 b.name as member_name,
+							   					 a.view_cnt view_cnt,
+							   					 to_char(a.reg_date, 'yyyy-mm-dd hh24:mi:ss') as reg_date,
+							   					 a.group_no group_no,
+							   					 a.order_no order_no,
+							   					 a.depth depth
+							   				from notice a, member b
+							   				where a.member_no = b.no 
+							   				order by group_no desc, order_no asc, depth asc)
+							   	]]>			
+							   	<if test="kwd != ''">
+							   		<if test="searchType == 'title'">
+								 	 	<![CDATA[
+								  	 		where title like '%${kwd }%' or content like '%${kwd }%'
+								  	 	]]>
+							   		</if>
+							   		<if test="searchType == 'user'">
+								 	 	<![CDATA[
+								  	 		where member_name like '%${kwd }%'
+								  	 	]]>
+							   		</if>
+							   	</if>
+							   	<![CDATA[
+							   	) pagetable
+					where rnum <= #{end })
+			where rnum >= #{start }
+		]]>
+	</select>
+
+</mapper>
