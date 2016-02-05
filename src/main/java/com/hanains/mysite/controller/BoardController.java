@@ -43,7 +43,7 @@ public class BoardController {
 	@Auth
 	@RequestMapping("/delete")
 	public String delete(@RequestParam("no") long no, @RequestParam(value="member", required=true, defaultValue="-1") long member, @AuthUser UserVo authUser){
-		if(service.getBoardAuthNo(no) != authUser.getNo()) return "redirect:/board/?result=fail";
+		if(!"admin".equals(authUser.getEmail()) && service.getBoardAuthNo(no) != authUser.getNo()) return "redirect:/board/?result=fail";
 		service.delete(no);
 		return "redirect:/board/";
 	}

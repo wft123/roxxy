@@ -15,6 +15,11 @@
 </style>
 </head>
 <body>
+<c:if test="${param.result=='fail' }">
+	<script>
+		alert('관리자가 아닙니다.');
+	</script>
+</c:if>
 	<div class="container">
 		<c:import url="/WEB-INF/views/include/header.jsp"/>
 		<h1>공지사항</h1>
@@ -47,7 +52,7 @@
 						<td>${vo.view_cnt }</td>
 						<td>
 							<c:if test="${vo.member_no==authUser.no }">
-								<a href="${pageContext.request.contextPath}/notice/delete?no=${vo.no }" class="del">삭제</a>
+								<a href="${pageContext.request.contextPath}/notice/delete?no=${vo.no }" class="glyphicon glyphicon-remove"></a>
 							</c:if>
 						</td>
 					</tr>

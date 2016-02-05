@@ -52,7 +52,7 @@
 						<td>${vo.view_cnt }</td>
 						<td>
 							<c:if test="${vo.member_no==authUser.no || authUser.no==5}">
-								<a href="${pageContext.request.contextPath}/board/delete?no=${vo.no }" class="del">삭제</a>
+								<a href="${pageContext.request.contextPath}/board/delete?no=${vo.no }" class="glyphicon glyphicon-remove"></a>
 							</c:if>
 						</td>
 					</tr>

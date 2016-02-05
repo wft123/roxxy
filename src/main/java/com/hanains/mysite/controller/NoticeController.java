@@ -42,7 +42,8 @@ public class NoticeController {
 	
 	@Auth
 	@RequestMapping("/delete")
-	public String delete(@RequestParam("no") long no){
+	public String delete(@RequestParam("no") long no, @AuthUser UserVo authUser){
+		if(!"admin".equals(authUser.getEmail()) ) return "redirect:/notice/?result=fail";
 		service.delete(no);
 		return "redirect:/notice/";
 	}
